@@ -1,0 +1,702 @@
+[
+  {
+    "image_id": "polyp_0000",
+    "image_path": "images\\polyp_0000.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0001",
+    "image_path": "images\\polyp_0001.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [112, 43, 162, 111] occupying 5.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0002",
+    "image_path": "images\\polyp_0002.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [32, 26, 86, 78] occupying 4.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0003",
+    "image_path": "images\\polyp_0003.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [48, 115, 110, 171] occupying 5.6% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0004",
+    "image_path": "images\\polyp_0004.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [93, 60, 123, 126] occupying 3.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0005",
+    "image_path": "images\\polyp_0005.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0006",
+    "image_path": "images\\polyp_0006.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [79, 27, 127, 95] occupying 5.3% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0007",
+    "image_path": "images\\polyp_0007.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [141, 98, 189, 140] occupying 3.3% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0008",
+    "image_path": "images\\polyp_0008.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [90, 78, 142, 146] occupying 5.7% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0009",
+    "image_path": "images\\polyp_0009.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [51, 98, 117, 160] occupying 6.6% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0010",
+    "image_path": "images\\polyp_0010.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0011",
+    "image_path": "images\\polyp_0011.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [140, 72, 190, 116] occupying 3.6% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0012",
+    "image_path": "images\\polyp_0012.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [29, 133, 85, 193] occupying 5.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0013",
+    "image_path": "images\\polyp_0013.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [142, 89, 178, 155] occupying 3.9% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0014",
+    "image_path": "images\\polyp_0014.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [73, 130, 125, 166] occupying 3.1% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0015",
+    "image_path": "images\\polyp_0015.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0016",
+    "image_path": "images\\polyp_0016.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [104, 88, 134, 146] occupying 2.9% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0017",
+    "image_path": "images\\polyp_0017.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [98, 54, 140, 116] occupying 4.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0018",
+    "image_path": "images\\polyp_0018.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [97, 155, 151, 189] occupying 3.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0019",
+    "image_path": "images\\polyp_0019.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [43, 69, 103, 105] occupying 3.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0020",
+    "image_path": "images\\polyp_0020.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0021",
+    "image_path": "images\\polyp_0021.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [89, 81, 129, 139] occupying 3.8% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0022",
+    "image_path": "images\\polyp_0022.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [56, 71, 106, 113] occupying 3.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0023",
+    "image_path": "images\\polyp_0023.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [71, 109, 117, 153] occupying 3.3% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0024",
+    "image_path": "images\\polyp_0024.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [123, 128, 167, 190] occupying 4.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0025",
+    "image_path": "images\\polyp_0025.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0026",
+    "image_path": "images\\polyp_0026.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [20, 99, 80, 145] occupying 4.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0027",
+    "image_path": "images\\polyp_0027.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [89, 50, 153, 88] occupying 4.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0028",
+    "image_path": "images\\polyp_0028.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [117, 113, 147, 151] occupying 1.9% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0029",
+    "image_path": "images\\polyp_0029.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [96, 111, 148, 155] occupying 3.7% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0030",
+    "image_path": "images\\polyp_0030.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0031",
+    "image_path": "images\\polyp_0031.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [82, 44, 114, 92] occupying 2.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0032",
+    "image_path": "images\\polyp_0032.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [25, 62, 87, 122] occupying 6.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0033",
+    "image_path": "images\\polyp_0033.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [119, 125, 157, 169] occupying 2.7% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0034",
+    "image_path": "images\\polyp_0034.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [117, 55, 181, 117] occupying 6.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0035",
+    "image_path": "images\\polyp_0035.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0036",
+    "image_path": "images\\polyp_0036.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [63, 41, 95, 71] occupying 1.6% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0037",
+    "image_path": "images\\polyp_0037.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [113, 144, 161, 176] occupying 2.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0038",
+    "image_path": "images\\polyp_0038.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [61, 118, 91, 158] occupying 2.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0039",
+    "image_path": "images\\polyp_0039.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [145, 73, 175, 117] occupying 2.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0040",
+    "image_path": "images\\polyp_0040.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0041",
+    "image_path": "images\\polyp_0041.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [111, 83, 149, 131] occupying 3.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0042",
+    "image_path": "images\\polyp_0042.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [132, 96, 188, 148] occupying 4.7% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0043",
+    "image_path": "images\\polyp_0043.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [20, 94, 84, 152] occupying 6.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0044",
+    "image_path": "images\\polyp_0044.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [120, 81, 176, 117] occupying 3.3% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0045",
+    "image_path": "images\\polyp_0045.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0046",
+    "image_path": "images\\polyp_0046.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [138, 121, 182, 175] occupying 3.9% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0047",
+    "image_path": "images\\polyp_0047.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [133, 68, 183, 122] occupying 4.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0048",
+    "image_path": "images\\polyp_0048.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [86, 76, 132, 116] occupying 3.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0049",
+    "image_path": "images\\polyp_0049.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [26, 61, 76, 107] occupying 3.8% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0050",
+    "image_path": "images\\polyp_0050.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0051",
+    "image_path": "images\\polyp_0051.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [83, 109, 119, 147] occupying 2.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0052",
+    "image_path": "images\\polyp_0052.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [52, 37, 118, 101] occupying 6.8% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0053",
+    "image_path": "images\\polyp_0053.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [34, 68, 88, 122] occupying 4.7% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0054",
+    "image_path": "images\\polyp_0054.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [63, 55, 111, 123] occupying 5.3% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0055",
+    "image_path": "images\\polyp_0055.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0056",
+    "image_path": "images\\polyp_0056.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [28, 70, 76, 102] occupying 2.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0057",
+    "image_path": "images\\polyp_0057.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [70, 72, 102, 118] occupying 2.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0058",
+    "image_path": "images\\polyp_0058.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [27, 33, 89, 83] occupying 5.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0059",
+    "image_path": "images\\polyp_0059.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [138, 118, 180, 168] occupying 3.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0060",
+    "image_path": "images\\polyp_0060.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0061",
+    "image_path": "images\\polyp_0061.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [65, 90, 129, 150] occupying 6.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0062",
+    "image_path": "images\\polyp_0062.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [140, 120, 190, 170] occupying 4.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0063",
+    "image_path": "images\\polyp_0063.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [34, 17, 70, 83] occupying 3.9% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0064",
+    "image_path": "images\\polyp_0064.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [106, 102, 172, 158] occupying 5.9% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0065",
+    "image_path": "images\\polyp_0065.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0066",
+    "image_path": "images\\polyp_0066.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [45, 112, 87, 162] occupying 3.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0067",
+    "image_path": "images\\polyp_0067.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [21, 55, 81, 101] occupying 4.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0068",
+    "image_path": "images\\polyp_0068.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [59, 31, 101, 83] occupying 3.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0069",
+    "image_path": "images\\polyp_0069.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [50, 72, 82, 110] occupying 2.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0070",
+    "image_path": "images\\polyp_0070.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0071",
+    "image_path": "images\\polyp_0071.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [57, 45, 99, 111] occupying 4.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0072",
+    "image_path": "images\\polyp_0072.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [138, 79, 186, 131] occupying 4.1% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0073",
+    "image_path": "images\\polyp_0073.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [113, 105, 179, 163] occupying 6.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0074",
+    "image_path": "images\\polyp_0074.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [141, 114, 173, 176] occupying 3.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0075",
+    "image_path": "images\\polyp_0075.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0076",
+    "image_path": "images\\polyp_0076.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [104, 67, 154, 113] occupying 3.8% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0077",
+    "image_path": "images\\polyp_0077.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [111, 130, 157, 186] occupying 4.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0078",
+    "image_path": "images\\polyp_0078.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [113, 38, 171, 96] occupying 5.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0079",
+    "image_path": "images\\polyp_0079.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [100, 18, 134, 82] occupying 3.5% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0080",
+    "image_path": "images\\polyp_0080.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0081",
+    "image_path": "images\\polyp_0081.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [47, 126, 109, 164] occupying 3.8% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0082",
+    "image_path": "images\\polyp_0082.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [85, 110, 147, 148] occupying 3.8% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0083",
+    "image_path": "images\\polyp_0083.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [93, 127, 133, 173] occupying 3.0% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0084",
+    "image_path": "images\\polyp_0084.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [117, 66, 181, 120] occupying 5.6% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0085",
+    "image_path": "images\\polyp_0085.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0086",
+    "image_path": "images\\polyp_0086.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [64, 145, 102, 199] occupying 3.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0087",
+    "image_path": "images\\polyp_0087.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [80, 112, 116, 160] occupying 2.8% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0088",
+    "image_path": "images\\polyp_0088.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [140, 108, 204, 172] occupying 6.6% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0089",
+    "image_path": "images\\polyp_0089.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [141, 94, 183, 126] occupying 2.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0090",
+    "image_path": "images\\polyp_0090.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0091",
+    "image_path": "images\\polyp_0091.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [100, 143, 166, 177] occupying 3.7% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0092",
+    "image_path": "images\\polyp_0092.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [64, 77, 98, 137] occupying 3.3% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0093",
+    "image_path": "images\\polyp_0093.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [40, 122, 108, 160] occupying 4.2% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0094",
+    "image_path": "images\\polyp_0094.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [55, 122, 109, 184] occupying 5.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0095",
+    "image_path": "images\\polyp_0095.jpg",
+    "question": "Is there any mucosal abnormality or polyp lesion detected in this frame?",
+    "answer": "No polyp lesion or mucosal abnormality detected. Normal endoscopic appearance.",
+    "label": "normal"
+  },
+  {
+    "image_id": "polyp_0096",
+    "image_path": "images\\polyp_0096.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [38, 22, 96, 80] occupying 5.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0097",
+    "image_path": "images\\polyp_0097.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [97, 136, 139, 200] occupying 4.4% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0098",
+    "image_path": "images\\polyp_0098.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [44, 137, 108, 193] occupying 5.8% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  },
+  {
+    "image_id": "polyp_0099",
+    "image_path": "images\\polyp_0099.jpg",
+    "question": "Does this endoscopic image show a polyp lesion, and what are its spatial characteristics?",
+    "answer": "The endoscopic image shows a polyp lesion present at region [125, 41, 177, 85] occupying 3.7% of the field of view. Biopsy/resection recommended.",
+    "label": "polyp"
+  }
+]
