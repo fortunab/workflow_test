@@ -1,4 +1,5 @@
 import os
+import torch
 from fastai.learner import load_learner
 from src.train_classification import predict_classification, train_classification_model
 from src.train_detection import predict_detection, train_detection_model
@@ -6,10 +7,10 @@ from src.train_segmentation import predict_segmentation, train_segmentation_mode
 
 class PerceptualWorkerSuite:
     """
-    Unified Manager loading the three trained fast.ai perceptual workers:
-    - Worker W1 (f_cls): Classification
-    - Worker W2 (f_det): Detection Bounding Box
-    - Worker W3 (f_seg): Segmentation Mask
+    Unified Manager loading the three trained perceptual workers:
+    - Worker W1 (f_cls): Classification   — fast.ai Learner (.pkl via learn.export)
+    - Worker W2 (f_det): Detection BBox   — pure PyTorch nn.Module (.pkl via torch.save)
+    - Worker W3 (f_seg): Segmentation     — fast.ai Learner (.pkl via learn.export)
     """
     def __init__(self, models_dir=None, data_dir=None, auto_train=True):
         if models_dir is None:
@@ -21,16 +22,45 @@ class PerceptualWorkerSuite:
         self.det_path = os.path.join(models_dir, "detector.pkl")
         self.seg_path = os.path.join(models_dir, "segmenter.pkl")
 
-        # Train if missing
-        if auto_train and data_dir and not (os.path.exists(self.cls_path) and os.path.exists(self.det_path) and os.path.exists(self.seg_path)):
+        # Auto-train if any checkpoint is missing
+        if auto_train and data_dir and not (
+            os.path.exists(self.cls_path) and
+            os.path.exists(self.det_path) and
+            os.path.exists(self.seg_path)
+        ):
             print("[INFO] Model checkpoints missing. Auto-training perceptual models...")
             train_classification_model(data_dir, epochs=2, save_path=self.cls_path)
-            train_detection_model(data_dir, epochs=2, save_path=self.det_path)
-            train_segmentation_model(data_dir, epochs=2, save_path=self.seg_path)
+            train_detection_model(data_dir,      epochs=2, save_path=self.det_path)
+            train_segmentation_model(data_dir,   epochs=2, save_path=self.seg_path)
 
+        # W1: fast.ai Learner (classification only — still uses learn.export)
         self.cls_learn = load_learner(self.cls_path) if os.path.exists(self.cls_path) else None
-        self.det_learn = load_learner(self.det_path) if os.path.exists(self.det_path) else None
-        self.seg_learn = load_learner(self.seg_path) if os.path.exists(self.seg_path) else None
+
+        # W2: pure PyTorch nn.Module (saved with torch.save)
+        if os.path.exists(self.det_path):
+            try:
+                self.det_learn = torch.load(self.det_path, map_location='cpu', weights_only=False)
+            except Exception:
+                try:
+                    self.det_learn = load_learner(self.det_path)
+                except Exception:
+                    self.det_learn = None
+        else:
+            self.det_learn = None
+
+        # W3: pure PyTorch nn.Module (saved with torch.save — _UNet)
+        if os.path.exists(self.seg_path):
+            try:
+                self.seg_learn = torch.load(self.seg_path, map_location='cpu', weights_only=False)
+            except Exception:
+                try:
+                    self.seg_learn = load_learner(self.seg_path)
+                except Exception:
+                    self.seg_learn = None
+        else:
+            self.seg_learn = None
+
+
 
     def run_stage1_classification(self, img_path):
         """Worker W1: Classification (f_cls)"""

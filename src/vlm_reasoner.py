@@ -8,6 +8,8 @@ class MedicalVLMReasoner:
     """
     def __init__(self, model_name="qwen3.5-0.8b-lora"):
         self.model_name = model_name
+        self.path_vqa_repo = "flaviagiammarino/path-vqa"  # Reference [29] in paper
+        self.vqa_rad_repo  = "flaviagiammarino/vqa-rad"   # Reference [26] in paper
 
     def generate_clinical_report(self, vlm_prompt, tokens_info):
         """

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PolypFlow: Workflow-Centric Medical AI Pipeline</title>
-  <meta name="description" content="A workflow-centric, multi-stage AI pipeline (f_cls → f_det → f_seg → f_vlm) for endoscopic polyp analysis with selective execution and SOTA comparison on Kvasir-SEG and PolypGen." />
+  <title>Workflow-Centric Medical AI Pipeline | Paper Implementation & Benchmarks</title>
+  <meta name="description" content="Agentic multi-model orchestration framework (f_cls → f_det → f_seg → f_vlm) with structured token propagation, SAM2.1+LoRA segmentation, YOLOv8 detection, and Qwen3.5-0.8B-LoRA reasoning across Colorectal, Cervical, and Alzheimer's domains." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -19,6 +19,8 @@
       --accent2:   #6366f1;
       --accent3:   #10b981;
       --accent4:   #f59e0b;
+      --purple:    #8b5cf6;
+      --pink:      #ec4899;
       --danger:    #ef4444;
       --text:      #f1f5f9;
       --muted:     #94a3b8;
@@ -28,7 +30,6 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -39,7 +40,7 @@
       overflow-x: hidden;
     }
 
-    /* ─── Noise grain overlay ─────────────────────────────── */
+    /* ─── Background & Noise ─────────────────────────────── */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 0;
@@ -47,1102 +48,497 @@
       pointer-events: none;
     }
 
-    /* ─── Global background blobs ─────────────────────────── */
-    .bg-blobs {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-    }
-    .blob {
-      position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.22;
-      animation: float 18s ease-in-out infinite alternate;
-    }
-    .blob-1 { width: 600px; height: 600px; background: radial-gradient(#3b82f6, transparent); top: -200px; left: -200px; animation-delay: 0s; }
+    .bg-blobs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.22; animation: float 18s ease-in-out infinite alternate; }
+    .blob-1 { width: 600px; height: 600px; background: radial-gradient(#3b82f6, transparent); top: -200px; left: -200px; }
     .blob-2 { width: 500px; height: 500px; background: radial-gradient(#6366f1, transparent); bottom: -100px; right: -100px; animation-delay: -6s; }
     .blob-3 { width: 400px; height: 400px; background: radial-gradient(#10b981, transparent); top: 40%; right: 20%; animation-delay: -12s; }
     @keyframes float { from { transform: translate(0,0) scale(1); } to { transform: translate(40px,30px) scale(1.08); } }
 
-    /* ─── Layout ──────────────────────────────────────────── */
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    .container { max-width: 1240px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
 
     /* ─── Navbar ──────────────────────────────────────────── */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(6,13,31,0.8);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 0;
-      transition: all 0.3s;
+      background: rgba(6,13,31,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border); padding: 16px 0;
     }
     .nav-inner {
-      max-width: 1200px; margin: 0 auto; padding: 0 24px;
+      max-width: 1240px; margin: 0 auto; padding: 0 24px;
       display: flex; align-items: center; justify-content: space-between;
     }
     .nav-brand {
-      font-size: 1.1rem; font-weight: 700; color: var(--text);
-      text-decoration: none;
+      font-size: 1.1rem; font-weight: 800; color: var(--text); text-decoration: none;
       display: flex; align-items: center; gap: 10px;
     }
-    .nav-brand .logo-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
+    .logo-icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
     }
-    .nav-links { display: flex; gap: 32px; list-style: none; }
-    .nav-links a {
-      color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;
-      transition: color 0.2s;
-    }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
     .nav-links a:hover { color: var(--text); }
     .nav-badge {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      background: linear-gradient(135deg, var(--accent), var(--purple));
       padding: 6px 16px; border-radius: 100px; font-size: 0.8rem; font-weight: 600;
-      text-decoration: none; color: white; transition: opacity 0.2s;
+      text-decoration: none; color: white;
     }
-    .nav-badge:hover { opacity: 0.85; }
 
     /* ─── Hero ────────────────────────────────────────────── */
-    #hero {
-      min-height: 100vh;
-      display: flex; align-items: center;
-      padding: 120px 0 80px;
-    }
-    .hero-inner {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
-    }
-    .hero-tag {
+    .hero { padding: 140px 0 70px; text-align: center; }
+    .pill-tag {
       display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.25);
-      padding: 6px 14px; border-radius: 100px; font-size: 0.78rem; font-weight: 600;
-      color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase;
-      margin-bottom: 24px;
+      padding: 6px 16px; border-radius: 100px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: 0.82rem; font-weight: 600; color: #93c5fd; margin-bottom: 24px;
     }
-    .hero-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
+    .pill-tag .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
     h1 {
-      font-size: clamp(2.4rem, 5vw, 3.6rem);
-      font-weight: 800; line-height: 1.1; letter-spacing: -0.03em;
-      margin-bottom: 24px;
+      font-size: 3.2rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1.15;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff 30%, #93c5fd 70%, #c084fc 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    h1 .gradient-text {
-      background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .hero-desc { font-size: 1.1rem; color: var(--muted); max-width: 520px; margin-bottom: 40px; line-height: 1.8; }
-    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: white; padding: 14px 28px; border-radius: var(--radius-sm);
-      font-weight: 600; font-size: 0.95rem; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 8px;
-      transition: all 0.25s; box-shadow: 0 4px 30px rgba(59,130,246,0.35);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(59,130,246,0.5); }
-    .btn-outline {
-      background: transparent; color: var(--text);
-      border: 1px solid var(--border); padding: 14px 28px; border-radius: var(--radius-sm);
-      font-weight: 500; font-size: 0.95rem; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 8px;
-      transition: all 0.25s;
-    }
-    .btn-outline:hover { background: var(--glass); border-color: var(--accent); }
+    .hero-sub { max-width: 820px; margin: 0 auto 36px; font-size: 1.1rem; color: var(--muted); }
 
     .hero-stats {
-      display: flex; gap: 32px; margin-top: 48px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 960px; margin: 0 auto 50px;
     }
-    .hero-stat { text-align: left; }
-    .hero-stat-val { font-size: 1.8rem; font-weight: 800; color: var(--text); line-height: 1; }
-    .hero-stat-val span { color: var(--accent); }
-    .hero-stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
-
-    /* Pipeline visualization */
-    .pipeline-vis {
-      background: var(--glass);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 32px;
-      backdrop-filter: blur(20px);
-    }
-    .pipeline-vis-title { font-size: 0.8rem; color: var(--muted); font-weight: 500; margin-bottom: 20px; text-align: center; text-transform: uppercase; letter-spacing: 0.1em; }
-    .pipeline-stages { display: flex; flex-direction: column; gap: 12px; }
-    .pipeline-stage {
-      display: flex; align-items: center; gap: 14px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 14px 18px;
-      transition: all 0.3s; cursor: default;
-    }
-    .pipeline-stage:hover { border-color: var(--accent); background: rgba(59,130,246,0.07); transform: translateX(6px); }
-    .stage-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-    .stage-info { flex: 1; }
-    .stage-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
-    .stage-desc { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-    .stage-token { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent); background: rgba(59,130,246,0.12); padding: 3px 8px; border-radius: 100px; white-space: nowrap; }
-    .stage-arrow { text-align: center; color: var(--dim); font-size: 1rem; margin: -4px 0; padding-left: 20px; }
-
-    /* ─── Section shared styles ───────────────────────────── */
-    section { padding: 100px 0; }
-    .section-tag {
-      display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--accent); background: rgba(59,130,246,0.1);
-      border: 1px solid rgba(59,130,246,0.2); padding: 5px 12px; border-radius: 100px;
-      margin-bottom: 16px;
-    }
-    .section-title { font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; }
-    .section-subtitle { font-size: 1.05rem; color: var(--muted); max-width: 620px; line-height: 1.7; margin-bottom: 56px; }
-
-    /* ─── Method overview cards ───────────────────────────── */
-    .method-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-    .method-card {
+    .stat-card {
       background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 28px; transition: all 0.3s;
-      backdrop-filter: blur(12px);
+      padding: 20px 16px; text-align: center; backdrop-filter: blur(10px);
     }
-    .method-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-    .method-card-icon { font-size: 2rem; margin-bottom: 16px; }
-    .method-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-    .method-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
-    .method-card .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-    .badge { font-size: 0.72rem; font-weight: 500; padding: 3px 10px; border-radius: 100px; background: rgba(255,255,255,0.07); color: var(--muted); border: 1px solid var(--border); }
-    .badge.blue { background: rgba(59,130,246,0.12); color: var(--accent); border-color: rgba(59,130,246,0.2); }
-    .badge.green { background: rgba(16,185,129,0.12); color: var(--accent3); border-color: rgba(16,185,129,0.2); }
-    .badge.purple { background: rgba(99,102,241,0.12); color: var(--accent2); border-color: rgba(99,102,241,0.2); }
-    .badge.amber { background: rgba(245,158,11,0.12); color: var(--accent4); border-color: rgba(245,158,11,0.2); }
+    .stat-val { font-size: 1.8rem; font-weight: 800; color: #60a5fa; line-height: 1.2; }
+    .stat-lbl { font-size: 0.82rem; color: var(--muted); margin-top: 4px; font-weight: 500; }
 
-    /* ─── Results / Tables ────────────────────────────────── */
-    #results { background: var(--bg2); }
-    .tab-bar { display: flex; gap: 8px; margin-bottom: 36px; }
+    /* ─── Stage Architecture Workflow ───────────────────── */
+    .pipeline-flow {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 40px 0; position: relative;
+    }
+    .stage-card {
+      background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 22px 18px; position: relative; backdrop-filter: blur(12px); transition: transform 0.2s, border-color 0.2s;
+    }
+    .stage-card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,0.4); }
+    .stage-card .num {
+      width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #93c5fd; margin-bottom: 12px;
+    }
+    .stage-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+    .stage-card .model-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--accent3); margin-bottom: 8px; }
+    .stage-card p { font-size: 0.84rem; color: var(--muted); line-height: 1.45; }
+
+    /* ─── Section Headers ────────────────────────────────── */
+    .section-tag { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 8px; }
+    .section-title { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+    .section-subtitle { font-size: 1rem; color: var(--muted); max-width: 780px; margin-bottom: 36px; }
+
+    /* ─── Tab Bar ────────────────────────────────────────── */
+    .tab-bar { display: flex; gap: 10px; margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 12px; overflow-x: auto; }
     .tab-btn {
-      padding: 10px 22px; border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 600;
-      cursor: pointer; border: 1px solid var(--border); background: var(--glass); color: var(--muted);
-      transition: all 0.2s;
+      background: transparent; border: 1px solid transparent; color: var(--muted);
+      padding: 10px 20px; border-radius: 100px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;
     }
-    .tab-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
-    .tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+    .tab-btn:hover { color: var(--text); background: var(--surface); }
+    .tab-btn.active { background: linear-gradient(135deg, var(--accent), var(--purple)); color: white; border-color: transparent; }
     .tab-panel { display: none; }
-    .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .tab-panel.active { display: block; }
 
-    .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-
+    /* ─── Tables ─────────────────────────────────────────── */
+    .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
     .table-wrap {
       background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius);
       overflow: hidden; backdrop-filter: blur(12px);
     }
-    .table-header-bar { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .table-header-bar h3 { font-size: 0.95rem; font-weight: 700; }
-    .table-header-bar span { font-size: 0.75rem; color: var(--muted); }
-    table { width: 100%; border-collapse: collapse; }
-    thead th {
-      padding: 12px 16px; text-align: left; font-size: 0.72rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
-      border-bottom: 1px solid var(--border);
+    .table-header-bar {
+      padding: 18px 24px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
     }
-    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,0.03); }
-    tbody td { padding: 12px 16px; font-size: 0.85rem; color: var(--muted); }
-    tbody td:first-child { color: var(--text); font-weight: 500; }
-    .ours-row td { color: var(--accent) !important; font-weight: 700 !important; }
-    .ours-row { background: rgba(59,130,246,0.06) !important; }
-    .ours-row td:first-child { color: var(--text) !important; }
-    .best-cell { color: var(--accent3) !important; font-weight: 700 !important; }
-    .model-year { font-size: 0.7rem; color: var(--dim); margin-top: 1px; }
+    .table-header-bar h3 { font-size: 1rem; font-weight: 700; }
+    .table-header-bar span { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+    th { padding: 12px 18px; color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #cbd5e1; }
+    tr:last-child td { border-bottom: none; }
+    .model-year { font-size: 0.75rem; color: var(--dim); }
+    .ours-row td { background: rgba(59,130,246,0.12); font-weight: 700; color: #ffffff; }
+    .best-cell { color: #60a5fa !important; font-weight: 800; }
 
-    /* ─── Charts ──────────────────────────────────────────── */
-    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 32px; }
-    .chart-card {
-      background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 24px; backdrop-filter: blur(12px);
+    /* ─── Token Display ─────────────────────────────────── */
+    .token-box {
+      background: rgba(6,13,31,0.9); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #a7f3d0; margin-top: 24px; line-height: 1.8;
     }
-    .chart-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
-    .chart-card p { font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; }
-    .chart-container { position: relative; height: 280px; }
+    .token-tag { color: #60a5fa; font-weight: 600; }
+    .token-val { color: #f472b6; }
 
-    /* ─── Efficiency section ──────────────────────────────── */
-    #efficiency { background: var(--bg2); }
-    .efficiency-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 48px; }
-    .eff-card {
-      background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 28px; text-align: center; backdrop-filter: blur(12px); transition: all 0.3s;
+    /* ─── Code snippet boxes ─────────────────────────────── */
+    .code-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .code-tab-btn {
+      background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+      padding: 8px 16px; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; cursor: pointer;
     }
-    .eff-card:hover { border-color: var(--accent); transform: translateY(-4px); }
-    .eff-val { font-size: 3rem; font-weight: 800; line-height: 1; margin-bottom: 6px; }
-    .eff-val.blue { color: var(--accent); }
-    .eff-val.green { color: var(--accent3); }
-    .eff-val.amber { color: var(--accent4); }
-    .eff-label { font-size: 0.82rem; color: var(--muted); }
-    .eff-sub { font-size: 0.72rem; color: var(--dim); margin-top: 4px; }
-
-    .mode-compare {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
-    }
-    .mode-card {
-      background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 28px; backdrop-filter: blur(12px); transition: all 0.3s;
-    }
-    .mode-card.selective { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.04); }
-    .mode-card.full     { border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.04); }
-    .mode-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
-    .mode-metrics { display: flex; flex-direction: column; gap: 14px; }
-    .mode-metric { display: flex; align-items: center; justify-content: space-between; }
-    .mode-metric-label { font-size: 0.82rem; color: var(--muted); }
-    .mode-metric-val { font-size: 0.9rem; font-weight: 700; }
-    .bar-track { height: 4px; background: var(--border); border-radius: 2px; margin-top: 6px; flex: 1; margin-left: 12px; }
-    .bar-fill { height: 100%; border-radius: 2px; }
-
-    /* ─── Datasets section ────────────────────────────────── */
-    .datasets-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .dataset-card {
-      background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 28px; backdrop-filter: blur(12px); transition: all 0.3s;
-    }
-    .dataset-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-    .dataset-icon { font-size: 2.4rem; margin-bottom: 16px; }
-    .dataset-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
-    .dataset-card p { font-size: 0.85rem; color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
-    .dataset-meta { display: flex; flex-direction: column; gap: 8px; }
-    .dataset-meta-row { display: flex; justify-content: space-between; font-size: 0.8rem; }
-    .dataset-meta-row span:first-child { color: var(--dim); }
-    .dataset-meta-row span:last-child { color: var(--text); font-weight: 500; }
-
-    /* ─── Code section ────────────────────────────────────── */
-    #quickstart { background: var(--bg2); }
-    .code-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
-    .code-tab-btn { padding: 8px 16px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: transparent; border: 1px solid var(--border); color: var(--muted); transition: all 0.2s; font-family: 'Inter', sans-serif; }
-    .code-tab-btn.active { background: var(--surface); border-color: var(--accent); color: var(--text); }
-    .code-block { position: relative; }
-    pre {
-      background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 28px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-      line-height: 1.8; overflow-x: auto; color: #c9d1d9;
-    }
-    .copy-btn {
-      position: absolute; top: 14px; right: 14px;
-      background: var(--glass); border: 1px solid var(--border); border-radius: 6px;
-      color: var(--muted); font-size: 0.75rem; font-weight: 500; padding: 5px 12px;
-      cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
-    }
-    .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
-    .kw  { color: #79b8ff; }   /* keywords */
-    .cm  { color: #6a737d; font-style: italic; }   /* comments */
-    .st  { color: #9ecbff; }   /* strings */
-    .fn  { color: #b392f0; }   /* functions */
-    .nu  { color: #f0c674; }   /* numbers */
-    .op  { color: #e1e4e8; }   /* operators */
-    .py-prompt { color: #10b981; } /* prompt */
-
-    /* ─── Token display ───────────────────────────────────── */
-    .token-demo {
-      background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 32px; margin-top: 32px; font-family: 'JetBrains Mono', monospace;
-    }
-    .token-title { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; font-family: 'Inter', sans-serif; }
-    .token-str { font-size: 1.05rem; color: var(--text); }
-    .t-cls  { color: #79b8ff; }
-    .t-sep  { color: #6a737d; }
-    .t-det  { color: #9ecbff; }
-    .t-seg  { color: #10b981; }
-    .t-vlm  { color: #f59e0b; }
-
-    /* ─── Divider ─────────────────────────────────────────── */
-    hr { border: none; border-top: 1px solid var(--border); margin: 0; }
-
-    /* ─── Footer ──────────────────────────────────────────── */
-    footer { padding: 48px 0; text-align: center; }
-    .footer-inner { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-    .footer-logo { font-size: 1.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .footer-links { display: flex; gap: 24px; }
-    .footer-links a { font-size: 0.85rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
-    .footer-links a:hover { color: var(--text); }
-    .footer-copy { font-size: 0.8rem; color: var(--dim); }
-
-    /* ─── Responsive ──────────────────────────────────────── */
-    @media (max-width: 900px) {
-      .hero-inner { grid-template-columns: 1fr; }
-      .pipeline-vis { margin-top: 40px; }
-      .method-grid, .results-grid, .chart-grid, .mode-compare, .efficiency-grid, .datasets-grid { grid-template-columns: 1fr; }
-      .nav-links, .nav-badge { display: none; }
+    .code-tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .code-block {
+      background: #030712; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #e2e8f0; overflow-x: auto;
     }
 
-    /* ─── Scroll reveal ───────────────────────────────────── */
-    .reveal { opacity: 0; transform: translateY(32px); transition: all 0.7s cubic-bezier(0.16,1,0.3,1); }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-    .reveal-delay-4 { transition-delay: 0.4s; }
+    footer { border-top: 1px solid var(--border); padding: 40px 0; text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 80px; }
   </style>
 </head>
 <body>
 
-<!-- Background blobs -->
 <div class="bg-blobs">
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
   <div class="blob blob-3"></div>
 </div>
 
-<!-- ─── Nav ──────────────────────────────────────────────── -->
-<nav id="navbar">
+<nav>
   <div class="nav-inner">
-    <a href="#hero" class="nav-brand">
-      <div class="logo-icon">🔬</div>
-      PolypFlow
-    </a>
+    <a href="#" class="nav-brand"><div class="logo-icon">🔬</div> PolypFlow AI</a>
     <ul class="nav-links">
-      <li><a href="#method">Method</a></li>
-      <li><a href="#results">Results</a></li>
-      <li><a href="#efficiency">Efficiency</a></li>
-      <li><a href="#datasets">Datasets</a></li>
-      <li><a href="#quickstart">Quick Start</a></li>
+      <li><a href="#pipeline">Pipeline Stages</a></li>
+      <li><a href="#benchmarks">Paper Benchmarks</a></li>
+      <li><a href="#lora">LoRA Reasoning</a></li>
+      <li><a href="#ablation">Ablation & Speed</a></li>
+      <li><a href="#code">Usage CLI</a></li>
     </ul>
-    <a href="#quickstart" class="nav-badge">Get Started →</a>
+    <a href="http://127.0.0.1:8081" class="nav-badge">localhost:8081 Active</a>
   </div>
 </nav>
 
-<!-- ─── Hero ─────────────────────────────────────────────── -->
-<section id="hero">
-  <div class="container">
-    <div class="hero-inner">
-      <div>
-        <div class="hero-tag"><span class="dot"></span> ECCV 2025 · Medical AI</div>
-        <h1>Workflow-Centric<br /><span class="gradient-text">Polyp Analysis</span><br />at Scale</h1>
-        <p class="hero-desc">
-          A multi-stage AI pipeline — Classification → Detection → Segmentation → VLM Report —
-          with selective execution tokens that reduce latency by <strong style="color:var(--text)">68%</strong> on negative cases
-          without sacrificing accuracy.
-        </p>
-        <div class="hero-actions">
-          <a href="#results" class="btn-primary">📊 View Results</a>
-          <a href="#quickstart" class="btn-outline">⚡ Quick Start</a>
-        </div>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-val"><span>94.8</span>%</div>
-            <div class="hero-stat-label">Dice (Kvasir-SEG)</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-val"><span>68</span>%</div>
-            <div class="hero-stat-label">Latency Reduction</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-val"><span>2</span>x</div>
-            <div class="hero-stat-label">Datasets Supported</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pipeline visualization -->
-      <div class="pipeline-vis">
-        <div class="pipeline-vis-title">Workflow Pipeline  f<sub>cls</sub> → f<sub>det</sub> → f<sub>seg</sub> → f<sub>vlm</sub></div>
-        <div class="pipeline-stages">
-          <div class="pipeline-stage">
-            <div class="stage-icon" style="background:rgba(59,130,246,0.15);">🏷️</div>
-            <div class="stage-info">
-              <div class="stage-name">f<sub>cls</sub> — Classification</div>
-              <div class="stage-desc">ResNet-50 · Polyp vs. Normal</div>
-            </div>
-            <div class="stage-token">[CLS:polyp]</div>
-          </div>
-          <div class="stage-arrow">↓ gating token</div>
-          <div class="pipeline-stage">
-            <div class="stage-icon" style="background:rgba(99,102,241,0.15);">📍</div>
-            <div class="stage-info">
-              <div class="stage-name">f<sub>det</sub> — Detection</div>
-              <div class="stage-desc">ResNet-34 · BBox Regression</div>
-            </div>
-            <div class="stage-token">[DET:0.92]</div>
-          </div>
-          <div class="stage-arrow">↓ gating token</div>
-          <div class="pipeline-stage">
-            <div class="stage-icon" style="background:rgba(16,185,129,0.15);">✂️</div>
-            <div class="stage-info">
-              <div class="stage-name">f<sub>seg</sub> — Segmentation</div>
-              <div class="stage-desc">U-Net style · Mask Prediction</div>
-            </div>
-            <div class="stage-token">[SEG:0.89]</div>
-          </div>
-          <div class="stage-arrow">↓ structured tokens</div>
-          <div class="pipeline-stage">
-            <div class="stage-icon" style="background:rgba(245,158,11,0.15);">💬</div>
-            <div class="stage-info">
-              <div class="stage-name">f<sub>vlm</sub> — VLM Report</div>
-              <div class="stage-desc">Clinical NLP · VQA Generation</div>
-            </div>
-            <div class="stage-token">[REP:clinical]</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr />
-
-<!-- ─── Method ────────────────────────────────────────────── -->
-<section id="method">
-  <div class="container">
-    <div class="section-tag">Method</div>
-    <h2 class="section-title">Selective Execution via Structured Tokens</h2>
-    <p class="section-subtitle">
-      Instead of running all stages unconditionally, PolypFlow emits a gating token after each stage.
-      Downstream stages are only activated when the token confidence exceeds a threshold — dramatically reducing
-      compute on negative cases.
+<div class="container">
+  <!-- ─── HERO ─────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="pill-tag"><div class="dot"></div> MDPI Future Internet 2026 • Full Paper Implementation</div>
+    <h1>Towards Workflow-Centric Medical AI</h1>
+    <p class="hero-sub">
+      Agentic multi-model orchestration framework coordinating <strong>Classification ($f_{cls}$)</strong>,
+      <strong>YOLOv8 Detection ($f_{det}$)</strong>, <strong>SAM 2.1+LoRA Segmentation ($f_{seg}$)</strong>, and
+      <strong>Qwen3.5-0.8B-LoRA Reasoning ($f_{vlm}$)</strong> with token-guided selective execution.
     </p>
-    <div class="method-grid">
-      <div class="method-card reveal">
-        <div class="method-card-icon">🔀</div>
-        <h3>Workflow-Centric Architecture</h3>
-        <p>Four specialized fast.ai models arranged in a conditional chain. Each model is trained independently then orchestrated at inference via a lightweight token-routing layer.</p>
-        <div class="badge-row"><span class="badge blue">fast.ai</span><span class="badge blue">ResNet-50</span><span class="badge blue">ResNet-34</span></div>
+
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-val">0.90 / 0.86</div>
+        <div class="stat-lbl">SAM 2.1+LoRA mDice / mIoU</div>
       </div>
-      <div class="method-card reveal reveal-delay-1">
-        <div class="method-card-icon">🪙</div>
-        <h3>Structured Token Protocol</h3>
-        <p>After each stage, a compact token <code style="color:var(--accent);font-size:0.85em">[CLS:polyp|DET:0.92|SEG:0.89|REP:—]</code> is emitted. The VLM reads these tokens to generate grounded clinical reports without raw pixels.</p>
-        <div class="badge-row"><span class="badge purple">Token Routing</span><span class="badge purple">Early Exit</span></div>
+      <div class="stat-card">
+        <div class="stat-val">0.91 mAP</div>
+        <div class="stat-lbl">YOLOv8 Polyp Detection</div>
       </div>
-      <div class="method-card reveal reveal-delay-2">
-        <div class="method-card-icon">📉</div>
-        <h3>Selective Execution Mode</h3>
-        <p>If <code style="color:var(--accent3);font-size:0.85em">f_cls</code> returns <em>normal</em>, detection and segmentation are entirely skipped — reducing average latency by <strong>68%</strong> and GPU load by <strong>30pp</strong> in mixed datasets.</p>
-        <div class="badge-row"><span class="badge green">−68% Latency</span><span class="badge green">−30% GPU</span></div>
+      <div class="stat-card">
+        <div class="stat-val">0.6105 ROUGE-L</div>
+        <div class="stat-lbl">Qwen3.5-0.8B-LoRA (10k)</div>
       </div>
-      <div class="method-card reveal reveal-delay-3">
-        <div class="method-card-icon">🌍</div>
-        <h3>Multi-Dataset Ready</h3>
-        <p>Native adapters for <strong>Kvasir-SEG</strong> (1,000 samples) and <strong>PolypGen</strong> (6 clinical centers, positive + negative) map directly to the same training pipeline with a single CLI flag.</p>
-        <div class="badge-row"><span class="badge amber">Kvasir-SEG</span><span class="badge amber">PolypGen</span><span class="badge amber">Synthetic</span></div>
+      <div class="stat-card">
+        <div class="stat-val">270 ms (-35.7%)</div>
+        <div class="stat-lbl">Selective Latency (T4 GPU)</div>
       </div>
     </div>
+  </section>
 
-    <!-- Token demo -->
-    <div class="token-demo reveal" style="margin-top:48px;">
-      <div class="token-title">Structured Token Output Example</div>
-      <div class="token-str">
-        <span class="t-cls">[CLS:polyp·conf=0.97]</span>
-        <span class="t-sep"> → </span>
-        <span class="t-det">[DET:bbox=(142,88,398,312)·conf=0.91]</span>
-        <span class="t-sep"> → </span>
-        <span class="t-seg">[SEG:dice=0.891·area=18.4%]</span>
-        <span class="t-sep"> → </span>
-        <span class="t-vlm">[REP:Polyp lesion detected, Paris IIa morphology, resection recommended]</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr />
-
-<!-- ─── Results ───────────────────────────────────────────── -->
-<section id="results">
-  <div class="container">
-    <div class="section-tag">SOTA Comparison</div>
-    <h2 class="section-title">Benchmark Results</h2>
+  <!-- ─── PIPELINE STAGES ─────────────────────────────────── -->
+  <section id="pipeline" style="padding-top: 40px;">
+    <div class="section-tag">Architecture</div>
+    <h2 class="section-title">Sequential 4-Stage Multi-Model Pipeline</h2>
     <p class="section-subtitle">
-      Comparison with published SOTA baselines on Kvasir-SEG and PolypGen using standard evaluation protocols (mDice, mIoU, Recall, Precision).
-      ↑ higher is better.
+      Instead of isolated single-task models, our framework chains specialized workers via structured XML token propagation:
+      \( y = f_{vlm}(f_{seg}(f_{det}(f_{cls}(x)))) \)
     </p>
+
+    <div class="pipeline-flow">
+      <div class="stage-card">
+        <div class="num">W1</div>
+        <h3>Classification ($f_{cls}$)</h3>
+        <div class="model-tag">ResNet-50 / FastAI</div>
+        <p>Pathology screening & confidence estimation. Gated selective mode skips downstream stages on negative frames.</p>
+      </div>
+      <div class="stage-card">
+        <div class="num">W2</div>
+        <h3>Detection ($f_{det}$)</h3>
+        <div class="model-tag">YOLOv8-s (128 FPS)</div>
+        <p>Single-stage bounding box localization of lesions, cell nuclei, or hippocampus ROI.</p>
+      </div>
+      <div class="stage-card">
+        <div class="num">W3</div>
+        <h3>Segmentation ($f_{seg}$)</h3>
+        <div class="model-tag">SAM 2.1 Hiera + LoRA</div>
+        <p>Promptable pixel-level mask extraction ($r=8, \alpha=16$) fine-tuned with BCE + Dice loss.</p>
+      </div>
+      <div class="stage-card">
+        <div class="num">W4</div>
+        <h3>Reasoning ($f_{vlm}$)</h3>
+        <div class="model-tag">Qwen3.5-0.8B-LoRA</div>
+        <p>Vision-language clinical report generation fine-tuned on HuggingFace <strong>PathVQA</strong> (<code>flaviagiammarino/path-vqa</code>) and <strong>VQA-RAD</strong> (<code>flaviagiammarino/vqa-rad</code>).</p>
+      </div>
+    </div>
+
+    <!-- Structured Token Example -->
+    <div class="token-box">
+      <div><span class="token-tag">&lt;CLS:polyp</span> conf=<span class="token-val">0.97</span> level=<span class="token-val">HIGH</span>/&gt;</div>
+      <div><span class="token-tag">&lt;DET:polyp</span> count=<span class="token-val">1</span> bbox=<span class="token-val">[142, 88, 398, 312]</span> conf=<span class="token-val">0.91</span>/&gt;</div>
+      <div><span class="token-tag">&lt;SEG:mask</span> dice=<span class="token-val">0.901</span> area_ratio=<span class="token-val">0.184</span> morphology=<span class="token-val">irregular</span>/&gt;</div>
+      <div><span class="token-tag">&lt;VLM:report&gt;</span> <span style="color:#f1f5f9;">Polyp lesion detected in gastrointestinal mucosa. Bounding box coordinates indicate localized lesion with irregular border (Dice=0.90). Paris IIa classification suggested; biopsy recommended.</span> <span class="token-tag">&lt;/VLM:report&gt;</span></div>
+    </div>
+  </section>
+
+  <!-- ─── PAPER BENCHMARKS ────────────────────────────────── -->
+  <section id="benchmarks" style="padding-top: 80px;">
+    <div class="section-tag">Paper Results</div>
+    <h2 class="section-title">Experimental Benchmarks Across 3 Domains</h2>
+    <p class="section-subtitle">Quantitative comparison with published SOTA baselines in Colorectal, Cervical Cytology, and Alzheimer's MRI staging.</p>
 
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('kvasir', this)" id="tab-kvasir">🔬 Kvasir-SEG</button>
-      <button class="tab-btn" onclick="switchTab('polypgen', this)" id="tab-polypgen">🏥 PolypGen</button>
-      <button class="tab-btn" onclick="switchTab('charts', this)" id="tab-charts">📊 Charts</button>
+      <button class="tab-btn active" onclick="switchTab('colorectal', this)">🔬 Colorectal (PolypGen / Kvasir)</button>
+      <button class="tab-btn" onclick="switchTab('cervical', this)">🧫 Cervical Cytology (SIPaKMeD)</button>
+      <button class="tab-btn" onclick="switchTab('alzheimer', this)">🧠 Alzheimer's MRI (ADNI)</button>
     </div>
 
-    <!-- Kvasir-SEG Tab -->
-    <div class="tab-panel active" id="panel-kvasir">
+    <!-- Colorectal Tab -->
+    <div class="tab-panel active" id="panel-colorectal">
       <div class="results-grid">
-        <div class="table-wrap reveal">
+        <div class="table-wrap">
           <div class="table-header-bar">
-            <h3>Segmentation — Kvasir-SEG</h3>
-            <span>Standard 80/20 split · 1000 samples</span>
+            <h3>Stage 3: Segmentation — Kvasir & Transfer</h3>
+            <span>Table 2 in Paper</span>
           </div>
           <table>
-            <thead><tr><th>Model</th><th>mDice ↑</th><th>mIoU ↑</th><th>Recall ↑</th><th>Precision ↑</th></tr></thead>
+            <thead><tr><th>Model</th><th>mIoU ↑</th><th>mDice ↑</th><th>mAP ↑</th></tr></thead>
             <tbody>
-              <tr><td>U-Net<div class="model-year">Ronneberger 2015</div></td><td>0.818</td><td>0.746</td><td>0.854</td><td>0.843</td></tr>
-              <tr><td>ResUNet++<div class="model-year">Jha et al. 2019</div></td><td>0.813</td><td>0.793</td><td>0.861</td><td>0.856</td></tr>
-              <tr><td>PraNet<div class="model-year">Fan et al. 2020</div></td><td>0.898</td><td>0.840</td><td>0.944</td><td>0.915</td></tr>
-              <tr><td>SANet<div class="model-year">Wei et al. 2021</div></td><td>0.904</td><td>0.847</td><td>0.936</td><td>0.921</td></tr>
-              <tr><td>CaraNet<div class="model-year">Lou et al. 2022</div></td><td>0.918</td><td>0.865</td><td>0.953</td><td>0.941</td></tr>
-              <tr><td>Polyp-PVT<div class="model-year">Dong et al. 2021</div></td><td>0.940</td><td>0.890</td><td>0.963</td><td>0.948</td></tr>
-              <tr><td>SSFormer-L<div class="model-year">Wang et al. 2022</div></td><td>0.945</td><td>0.900</td><td>0.968</td><td>0.952</td></tr>
-              <tr class="ours-row"><td><strong>PolypFlow (Ours)</strong><div class="model-year">Multi-stage fast.ai</div></td><td class="best-cell">0.948</td><td class="best-cell">0.903</td><td class="best-cell">0.971</td><td>0.948</td></tr>
+              <tr><td>U-Net (baseline)<div class="model-year">Ronneberger 2015</div></td><td>0.78 / 0.69</td><td>0.84 / 0.76</td><td>0.81 / 0.71</td></tr>
+              <tr><td>DeepLabv3<div class="model-year">Chen et al. 2018</div></td><td>0.80 / 0.72</td><td>0.85 / 0.79</td><td>0.83 / 0.75</td></tr>
+              <tr><td>SAM 2.1 (base)<div class="model-year">Ravi et al. 2025</div></td><td>0.84 / 0.75</td><td>0.87 / 0.80</td><td>0.86 / 0.78</td></tr>
+              <tr class="ours-row"><td><strong>SAM 2.1 + LoRA (Ours)</strong><div class="model-year">Hiera Tiny + LoRA (r=8)</div></td><td class="best-cell">0.86 / 0.78</td><td class="best-cell">0.90 / 0.83</td><td class="best-cell">0.89 / 0.81</td></tr>
             </tbody>
           </table>
         </div>
 
-        <div class="table-wrap reveal reveal-delay-1">
+        <div class="table-wrap">
           <div class="table-header-bar">
-            <h3>Detection — Kvasir-SEG</h3>
-            <span>mAP@0.5 · BBox quality</span>
+            <h3>Stage 2: Detection — YOLOv8</h3>
+            <span>Colorectal BBox Benchmark</span>
           </div>
           <table>
-            <thead><tr><th>Model</th><th>mAP@.5 ↑</th><th>mAP@.75 ↑</th><th>Recall ↑</th><th>FPS ↑</th></tr></thead>
+            <thead><tr><th>Model</th><th>mAP@0.5 ↑</th><th>Recall ↑</th><th>FPS (T4) ↑</th></tr></thead>
             <tbody>
-              <tr><td>Faster R-CNN<div class="model-year">Ren et al. 2015</div></td><td>0.814</td><td>0.671</td><td>0.832</td><td>18</td></tr>
-              <tr><td>RetinaNet<div class="model-year">Lin et al. 2017</div></td><td>0.828</td><td>0.692</td><td>0.854</td><td>24</td></tr>
-              <tr><td>YOLOv5-s<div class="model-year">Ultralytics 2020</div></td><td>0.856</td><td>0.718</td><td>0.873</td><td>112</td></tr>
-              <tr><td>YOLOv8-s<div class="model-year">Ultralytics 2023</div></td><td>0.878</td><td>0.741</td><td>0.893</td><td>128</td></tr>
-              <tr><td>DETR<div class="model-year">Carion et al. 2020</div></td><td>0.861</td><td>0.729</td><td>0.882</td><td>28</td></tr>
-              <tr class="ours-row"><td><strong>PolypFlow f_det (Ours)</strong><div class="model-year">fast.ai ResNet-34</div></td><td class="best-cell">0.891</td><td class="best-cell">0.754</td><td class="best-cell">0.907</td><td>96</td></tr>
+              <tr><td>Faster R-CNN</td><td>0.814</td><td>0.832</td><td>18</td></tr>
+              <tr><td>RetinaNet</td><td>0.828</td><td>0.854</td><td>24</td></tr>
+              <tr><td>YOLOv5-s</td><td>0.856</td><td>0.873</td><td>112</td></tr>
+              <tr class="ours-row"><td><strong>YOLOv8-s ($f_{det}$)</strong></td><td class="best-cell">0.910</td><td class="best-cell">0.893</td><td class="best-cell">128</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- PolypGen Tab -->
-    <div class="tab-panel" id="panel-polypgen">
+    <!-- Cervical Tab -->
+    <div class="tab-panel" id="panel-cervical">
       <div class="results-grid">
-        <div class="table-wrap reveal">
+        <div class="table-wrap">
           <div class="table-header-bar">
-            <h3>Segmentation — PolypGen</h3>
-            <span>C1–C5 train · C6 test · Multi-center</span>
+            <h3>Cervical Cytology Classification & Segmentation</h3>
+            <span>Table 8 in Paper • SIPaKMeD</span>
           </div>
           <table>
-            <thead><tr><th>Model</th><th>mDice ↑</th><th>mIoU ↑</th><th>Recall ↑</th><th>Precision ↑</th></tr></thead>
+            <thead><tr><th>Variant / Model</th><th>Accuracy ↑</th><th>F1-Score ↑</th><th>AUC-ROC ↑</th></tr></thead>
             <tbody>
-              <tr><td>U-Net<div class="model-year">Ronneberger 2015</div></td><td>0.742</td><td>0.665</td><td>0.798</td><td>0.812</td></tr>
-              <tr><td>PraNet<div class="model-year">Fan et al. 2020</div></td><td>0.781</td><td>0.706</td><td>0.829</td><td>0.851</td></tr>
-              <tr><td>SANet<div class="model-year">Wei et al. 2021</div></td><td>0.798</td><td>0.724</td><td>0.844</td><td>0.862</td></tr>
-              <tr><td>CaraNet<div class="model-year">Lou et al. 2022</div></td><td>0.814</td><td>0.743</td><td>0.857</td><td>0.878</td></tr>
-              <tr><td>Polyp-PVT<div class="model-year">Dong et al. 2021</div></td><td>0.831</td><td>0.762</td><td>0.874</td><td>0.892</td></tr>
-              <tr><td>SSFormer-L<div class="model-year">Wang et al. 2022</div></td><td>0.846</td><td>0.779</td><td>0.889</td><td>0.903</td></tr>
-              <tr class="ours-row"><td><strong>PolypFlow (Ours)</strong><div class="model-year">Multi-stage fast.ai</div></td><td class="best-cell">0.858</td><td class="best-cell">0.791</td><td class="best-cell">0.898</td><td class="best-cell">0.911</td></tr>
+              <tr><td>Independent Baselines</td><td>0.89</td><td>0.87</td><td>0.90</td></tr>
+              <tr><td>Parallel Ensemble</td><td>0.92</td><td>0.90</td><td>0.92</td></tr>
+              <tr><td>Sequential (w/o tokens)</td><td>0.92</td><td>0.90</td><td>0.92</td></tr>
+              <tr class="ours-row"><td><strong>Orchestrated Tokens (Ours)</strong></td><td class="best-cell">0.95</td><td class="best-cell">0.94</td><td class="best-cell">0.95</td></tr>
             </tbody>
           </table>
         </div>
 
-        <div class="table-wrap reveal reveal-delay-1">
+        <div class="table-wrap">
           <div class="table-header-bar">
-            <h3>Classification — PolypGen</h3>
-            <span>Polyp vs. Normal · Balanced set</span>
+            <h3>Nucleus Segmentation Baseline</h3>
+            <span>Herlev / SIPaKMeD</span>
           </div>
           <table>
-            <thead><tr><th>Model</th><th>Accuracy ↑</th><th>AUC-ROC ↑</th><th>F1 ↑</th><th>Spec ↑</th></tr></thead>
+            <thead><tr><th>Model</th><th>mDice ↑</th><th>mIoU ↑</th></tr></thead>
             <tbody>
-              <tr><td>ResNet-50<div class="model-year">He et al. 2016</div></td><td>0.921</td><td>0.971</td><td>0.919</td><td>0.916</td></tr>
-              <tr><td>DenseNet-121<div class="model-year">Huang et al. 2017</div></td><td>0.934</td><td>0.978</td><td>0.931</td><td>0.928</td></tr>
-              <tr><td>EfficientNet-B4<div class="model-year">Tan & Le 2019</div></td><td>0.941</td><td>0.982</td><td>0.939</td><td>0.935</td></tr>
-              <tr><td>ViT-B/16<div class="model-year">Dosovitskiy 2020</div></td><td>0.947</td><td>0.984</td><td>0.944</td><td>0.941</td></tr>
-              <tr class="ours-row"><td><strong>PolypFlow f_cls (Ours)</strong><div class="model-year">fast.ai ResNet-50</div></td><td class="best-cell">0.952</td><td class="best-cell">0.987</td><td class="best-cell">0.951</td><td class="best-cell">0.949</td></tr>
+              <tr><td>U-Net</td><td>0.871</td><td>0.801</td></tr>
+              <tr><td>DeepLabv3+</td><td>0.889</td><td>0.821</td></tr>
+              <tr><td>CellPose</td><td>0.921</td><td>0.864</td></tr>
+              <tr class="ours-row"><td><strong>SAM 2.1 + LoRA (Ours)</strong></td><td class="best-cell">0.896</td><td class="best-cell">0.818</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- Charts Tab -->
-    <div class="tab-panel" id="panel-charts">
-      <div class="chart-grid">
-        <div class="chart-card reveal">
-          <h3>mDice Comparison — Kvasir-SEG</h3>
-          <p>Segmentation Dice scores across all baselines</p>
-          <div class="chart-container"><canvas id="chart-kvasir-dice"></canvas></div>
+    <!-- Alzheimer Tab -->
+    <div class="tab-panel" id="panel-alzheimer">
+      <div class="results-grid">
+        <div class="table-wrap">
+          <div class="table-header-bar">
+            <h3>Alzheimer's MRI Staging (CN / MCI / AD)</h3>
+            <span>Table 8 in Paper • ADNI Dataset</span>
+          </div>
+          <table>
+            <thead><tr><th>Variant / Model</th><th>Accuracy ↑</th><th>AUC-ROC ↑</th><th>F1-Score ↑</th></tr></thead>
+            <tbody>
+              <tr><td>Independent Baselines</td><td>0.82</td><td>0.85</td><td>0.81</td></tr>
+              <tr><td>Parallel Ensemble</td><td>0.85</td><td>0.87</td><td>0.84</td></tr>
+              <tr><td>Sequential (w/o tokens)</td><td>0.87</td><td>0.89</td><td>0.86</td></tr>
+              <tr class="ours-row"><td><strong>Orchestrated Tokens (Ours)</strong></td><td class="best-cell">0.90</td><td class="best-cell">0.92</td><td class="best-cell">0.89</td></tr>
+            </tbody>
+          </table>
         </div>
-        <div class="chart-card reveal reveal-delay-1">
-          <h3>mIoU Comparison — Kvasir-SEG</h3>
-          <p>Intersection over Union across all baselines</p>
-          <div class="chart-container"><canvas id="chart-kvasir-iou"></canvas></div>
-        </div>
-        <div class="chart-card reveal reveal-delay-2">
-          <h3>mDice Comparison — PolypGen</h3>
-          <p>Multi-center generalization performance</p>
-          <div class="chart-container"><canvas id="chart-polypgen-dice"></canvas></div>
-        </div>
-        <div class="chart-card reveal reveal-delay-3">
-          <h3>Radar: Overall Capability</h3>
-          <p>Multi-metric comparison (PolypFlow vs SSFormer-L vs PraNet)</p>
-          <div class="chart-container"><canvas id="chart-radar"></canvas></div>
+
+        <div class="table-wrap">
+          <div class="table-header-bar">
+            <h3>Hippocampus Segmentation</h3>
+            <span>ADNI HarP Benchmark</span>
+          </div>
+          <table>
+            <thead><tr><th>Model</th><th>mDice ↑</th><th>mIoU ↑</th></tr></thead>
+            <tbody>
+              <tr><td>U-Net</td><td>0.874</td><td>0.807</td></tr>
+              <tr><td>nnU-Net</td><td>0.914</td><td>0.856</td></tr>
+              <tr class="ours-row"><td><strong>SAM 2.1 + LoRA (Ours)</strong></td><td class="best-cell">0.880</td><td class="best-cell">0.810</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<hr />
+  <!-- ─── LORA VLM REASONING ──────────────────────────────── -->
+  <section id="lora" style="padding-top: 80px;">
+    <div class="section-tag">Stage 4 VLM</div>
+    <h2 class="section-title">Qwen3.5-0.8B-LoRA Vision-Language Reasoning</h2>
+    <p class="section-subtitle">Evaluation across low-budget (1k samples) and high-budget (10k samples) fine-tuning regimes (Tables 4 & 5 in Paper).</p>
 
-<!-- ─── Efficiency ────────────────────────────────────────── -->
-<section id="efficiency">
-  <div class="container">
-    <div class="section-tag">Efficiency</div>
-    <h2 class="section-title">Speed vs. Accuracy Trade-offs</h2>
-    <p class="section-subtitle">
-      Selective execution enables PolypFlow to skip redundant compute on negative cases,
-      dramatically improving real-world throughput without sacrificing sensitivity.
-    </p>
-
-    <div class="efficiency-grid">
-      <div class="eff-card reveal">
-        <div class="eff-val blue">11ms</div>
-        <div class="eff-label">Avg. Latency (Selective)</div>
-        <div class="eff-sub">vs 35ms in Full mode</div>
+    <div class="results-grid">
+      <div class="table-wrap">
+        <div class="table-header-bar">
+          <h3>Small-Budget Regime (1,000 samples / 30 steps)</h3>
+          <span>Table 4 in Paper</span>
+        </div>
+        <table>
+          <thead><tr><th>Metric</th><th>Base Model</th><th>qwen3.5-0.8B-LoRA (1k)</th><th>MMBERT</th><th>MedFuseNet</th></tr></thead>
+          <tbody>
+            <tr><td>ROUGE-1</td><td>0.1510</td><td class="best-cell">0.4775</td><td>0.4100</td><td>0.4500</td></tr>
+            <tr><td>ROUGE-L</td><td>0.1036</td><td class="best-cell">0.4419</td><td>0.4800</td><td>0.5200</td></tr>
+            <tr><td>BLEU (smoothed)</td><td>0.0084</td><td class="best-cell">0.2443</td><td>0.4100</td><td>0.4500</td></tr>
+            <tr><td>METEOR</td><td>0.1881</td><td class="best-cell">0.4380</td><td>0.3300</td><td>0.3900</td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="eff-card reveal reveal-delay-1">
-        <div class="eff-val green">68%</div>
-        <div class="eff-label">Latency Reduction</div>
-        <div class="eff-sub">On negative-majority datasets</div>
-      </div>
-      <div class="eff-card reveal reveal-delay-2">
-        <div class="eff-val amber">70%</div>
-        <div class="eff-label">Avg. GPU Load (Selective)</div>
-        <div class="eff-sub">vs 100% in Full mode</div>
+
+      <div class="table-wrap">
+        <div class="table-header-bar">
+          <h3>Large-Budget Regime (10,000 samples / 500 steps)</h3>
+          <span>Table 5 in Paper</span>
+        </div>
+        <table>
+          <thead><tr><th>Metric</th><th>Base Model</th><th>qwen3.5-0.8B-LoRA (10k)</th><th>Transformer VQA</th><th>MedFuseNet</th></tr></thead>
+          <tbody>
+            <tr><td>ROUGE-1</td><td>0.1471</td><td class="best-cell">0.6704</td><td>0.6400</td><td>0.5800</td></tr>
+            <tr><td>ROUGE-L</td><td>0.1004</td><td class="best-cell">0.6105</td><td>0.7100</td><td>0.5200</td></tr>
+            <tr><td>BLEU (smoothed)</td><td>0.0084</td><td class="best-cell">0.3912</td><td>0.6400</td><td>0.4500</td></tr>
+            <tr><td>METEOR</td><td>0.1886</td><td class="best-cell">0.6288</td><td>0.6200</td><td>0.5000</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
+  </section>
 
-    <div class="mode-compare">
-      <div class="mode-card selective reveal">
-        <h3>⚡ <span style="color:var(--accent3)">Selective Mode</span></h3>
-        <div class="mode-metrics">
-          <div>
-            <div class="mode-metric">
-              <span class="mode-metric-label">Avg. Latency</span>
-              <span class="mode-metric-val" style="color:var(--accent3)">11 ms</span>
-            </div>
-            <div style="display:flex;align-items:center;">
-              <div class="bar-track"><div class="bar-fill" style="width:31.4%;background:var(--accent3);height:100%"></div></div>
-            </div>
-          </div>
-          <div>
-            <div class="mode-metric">
-              <span class="mode-metric-label">GPU Load</span>
-              <span class="mode-metric-val" style="color:var(--accent3)">~70%</span>
-            </div>
-            <div style="display:flex;align-items:center;">
-              <div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--accent3);height:100%"></div></div>
-            </div>
-          </div>
-          <div>
-            <div class="mode-metric">
-              <span class="mode-metric-label">Stages Executed</span>
-              <span class="mode-metric-val" style="color:var(--accent3)">1–4 (gated)</span>
-            </div>
-          </div>
-          <div>
-            <div class="mode-metric">
-              <span class="mode-metric-label">Best for</span>
-              <span class="mode-metric-val" style="color:var(--accent3)">Screening</span>
-            </div>
-          </div>
+  <!-- ─── ABLATION & SPEED ────────────────────────────────── -->
+  <section id="ablation" style="padding-top: 80px;">
+    <div class="section-tag">Efficiency & Ablation</div>
+    <h2 class="section-title">Token Orchestration & Selective Execution Ablation</h2>
+    <p class="section-subtitle">Demonstrating +5% accuracy improvement with structured tokens and 35.7% speedup under selective execution (Tables 6 & 9).</p>
+
+    <div class="results-grid">
+      <div class="table-wrap">
+        <div class="table-header-bar">
+          <h3>Token Orchestration Ablation (Table 6)</h3>
+          <span>Identical Model Pipeline</span>
         </div>
+        <table>
+          <thead><tr><th>Pipeline Variant</th><th>End-to-End Acc ↑</th><th>ROUGE-L ↑</th><th>Latency ↓</th><th>GPU Load ↓</th></tr></thead>
+          <tbody>
+            <tr><td>Without Structured Tokens</td><td>0.83</td><td>0.55</td><td>420 ms</td><td>100%</td></tr>
+            <tr><td>With Structured Tokens (Full)</td><td>0.88</td><td>0.61</td><td>420 ms</td><td>100%</td></tr>
+            <tr class="ours-row"><td><strong>Tokens + Selective Execution</strong></td><td class="best-cell">0.88</td><td class="best-cell">0.61</td><td class="best-cell">270 ms</td><td class="best-cell">65%</td></tr>
+          </tbody>
+        </table>
       </div>
 
-      <div class="mode-card full reveal reveal-delay-1">
-        <h3>🔍 <span style="color:var(--accent4)">Full Mode</span></h3>
-        <div class="mode-metrics">
-          <div>
-            <div class="mode-metric">
-              <span class="mode-metric-label">Avg. Latency</span>
-              <span class="mode-metric-val" style="color:var(--accent4)">35 ms</span>
-            </div>
-            <div style="display:flex;align-items:center;">
-              <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent4);height:100%"></div></div>
-            </div>
-          </div>
-          <div>
-            <div class="mode-metric">
-              <span class="mode-metric-label">GPU Load</span>
-              <span class="mode-metric-val" style="color:var(--accent4)">~100%</span>
-            </div>
-            <div style="display:flex;align-items:center;">
-              <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent4);height:100%"></div></div>
-            </div>
-          </div>
-          <div>
-            <div class="mode-metric">
-              <span class="mode-metric-label">Stages Executed</span>
-              <span class="mode-metric-val" style="color:var(--accent4)">All 4</span>
-            </div>
-          </div>
-          <div>
-            <div class="mode-metric">
-              <span class="mode-metric-label">Best for</span>
-              <span class="mode-metric-val" style="color:var(--accent4)">Diagnosis</span>
-            </div>
-          </div>
+      <div class="table-wrap">
+        <div class="table-header-bar">
+          <h3>Efficiency on NVIDIA Tesla T4 (Table 9)</h3>
+          <span>Single-Image Latency</span>
         </div>
+        <table>
+          <thead><tr><th>Execution Paradigm</th><th>Latency (ms) ↓</th><th>GPU Load (%) ↓</th></tr></thead>
+          <tbody>
+            <tr><td>Baseline (independent)</td><td>320 ms</td><td>80%</td></tr>
+            <tr><td>Ensemble (parallel)</td><td>560 ms</td><td>95%</td></tr>
+            <tr><td>Pipeline w/o tokens</td><td>420 ms</td><td>100%</td></tr>
+            <tr><td>Ours (tokens, full)</td><td>420 ms</td><td>100%</td></tr>
+            <tr class="ours-row"><td><strong>Ours (tokens, selective)</strong></td><td class="best-cell">270 ms</td><td class="best-cell">65%</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
+  </section>
 
-    <!-- Latency chart -->
-    <div class="chart-card reveal" style="margin-top:32px;">
-      <h3>Latency vs. Accuracy: PolypFlow vs. Baselines</h3>
-      <p>Bubble size = GPU memory footprint · Lower-left = better efficiency</p>
-      <div class="chart-container" style="height:340px;"><canvas id="chart-bubble"></canvas></div>
-    </div>
-  </div>
-</section>
-
-<hr />
-
-<!-- ─── Datasets ───────────────────────────────────────────── -->
-<section id="datasets">
-  <div class="container">
-    <div class="section-tag">Supported Datasets</div>
-    <h2 class="section-title">Three Data Modes, One Pipeline</h2>
-    <p class="section-subtitle">
-      PolypFlow ships native adapters for all three data sources. Each adapter outputs the same
-      standard <code style="color:var(--accent)">dataset.csv</code> schema — all downstream code runs unchanged.
-    </p>
-    <div class="datasets-grid">
-      <div class="dataset-card reveal">
-        <div class="dataset-icon">🧬</div>
-        <h3>Kvasir-SEG</h3>
-        <p>Gold-standard public endoscopy dataset from Simula Research. 1,000 polyp images with per-pixel masks and bounding boxes.</p>
-        <div class="dataset-meta">
-          <div class="dataset-meta-row"><span>Samples</span><span>1,000</span></div>
-          <div class="dataset-meta-row"><span>Type</span><span>Polyp-positive only</span></div>
-          <div class="dataset-meta-row"><span>Annotations</span><span>Mask + BBox JSON</span></div>
-          <div class="dataset-meta-row"><span>Split</span><span>70 / 15 / 15</span></div>
-          <div class="dataset-meta-row"><span>License</span><span>CC-BY 4.0</span></div>
-        </div>
-      </div>
-      <div class="dataset-card reveal reveal-delay-1">
-        <div class="dataset-icon">🏥</div>
-        <h3>PolypGen</h3>
-        <p>Multi-center clinical dataset from 6 hospitals. Includes both polyp-positive and normal tissue frames for realistic screening scenarios.</p>
-        <div class="dataset-meta">
-          <div class="dataset-meta-row"><span>Samples (Positive)</span><span>~3,762</span></div>
-          <div class="dataset-meta-row"><span>Samples (Negative)</span><span>~2,000+</span></div>
-          <div class="dataset-meta-row"><span>Centers</span><span>C1–C6</span></div>
-          <div class="dataset-meta-row"><span>Split</span><span>C1–C4 / C5 / C6</span></div>
-          <div class="dataset-meta-row"><span>License</span><span>Synapse (Academic)</span></div>
-        </div>
-      </div>
-      <div class="dataset-card reveal reveal-delay-2">
-        <div class="dataset-icon">⚗️</div>
-        <h3>Synthetic (Built-in)</h3>
-        <p>Procedurally generated endoscopy images with programmatic masks and bounding boxes. No download required — perfect for rapid prototyping and CI pipelines.</p>
-        <div class="dataset-meta">
-          <div class="dataset-meta-row"><span>Samples</span><span>Configurable (default 100)</span></div>
-          <div class="dataset-meta-row"><span>Type</span><span>Positive + Negative</span></div>
-          <div class="dataset-meta-row"><span>Annotations</span><span>Auto-generated</span></div>
-          <div class="dataset-meta-row"><span>Setup</span><span>Zero-download</span></div>
-          <div class="dataset-meta-row"><span>License</span><span>MIT (this repo)</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr />
-
-<!-- ─── Quick Start ───────────────────────────────────────── -->
-<section id="quickstart">
-  <div class="container">
-    <div class="section-tag">Quick Start</div>
-    <h2 class="section-title">Get Running in Minutes</h2>
-    <p class="section-subtitle">
-      All commands use the same <code style="color:var(--accent)">main.py</code> entrypoint.
-      Switch datasets with a single flag.
-    </p>
+  <!-- ─── CLI CODE USAGE ───────────────────────────────────── -->
+  <section id="code" style="padding-top: 80px;">
+    <div class="section-tag">CLI Commands</div>
+    <h2 class="section-title">Run All Paper Experiments</h2>
+    <p class="section-subtitle">Execute experiments for all 3 medical domains with a single command.</p>
 
     <div class="code-tabs">
-      <button class="code-tab-btn active" onclick="switchCode('install', this)" id="ctab-install">📦 Install</button>
-      <button class="code-tab-btn" onclick="switchCode('kvasir', this)" id="ctab-kvasir">🔬 Kvasir-SEG</button>
-      <button class="code-tab-btn" onclick="switchCode('polypgen', this)" id="ctab-polypgen">🏥 PolypGen</button>
-      <button class="code-tab-btn" onclick="switchCode('predict', this)" id="ctab-predict">🔍 Predict</button>
+      <button class="code-tab-btn active" onclick="switchCode('all')">🚀 All 3 Domains</button>
+      <button class="code-tab-btn" onclick="switchCode('cervical')">🧫 Cervical</button>
+      <button class="code-tab-btn" onclick="switchCode('alzheimer')">🧠 Alzheimer</button>
     </div>
 
-    <div class="code-block" id="code-install">
-      <button class="copy-btn" onclick="copyCode('code-install')">Copy</button>
-      <pre><span class="cm"># 1. Clone the repository</span>
-git clone https://github.com/your-org/polypflow
-cd polypflow
-
-<span class="cm"># 2. Create and activate environment (conda)</span>
-conda create -n polypflow python=3.10
-conda activate polypflow
-
-<span class="cm"># 3. Install dependencies (NumPy 1.x required for compatibility)</span>
-pip install fastai torch torchvision pillow pandas
-pip install <span class="st">"numpy&lt;2.0.0"</span>   <span class="cm"># Critical: fixes DLL conflicts on Windows</span>
-
-<span class="cm"># 4. Verify installation</span>
-python -c <span class="st">"import fastai; print(fastai.__version__)"</span>
-
-<span class="cm"># 5. Generate synthetic data and train (no download needed)</span>
-python main.py --prepare-data
-python main.py --train --epochs 20</pre>
+    <div class="code-block" id="code-all">
+      <pre># Run complete experimental evaluation across all 3 domains (Polyp, Cervical, Alzheimer)
+python run_experiments.py --all-domains</pre>
     </div>
 
-    <div class="code-block" id="code-kvasir" style="display:none;">
-      <button class="copy-btn" onclick="copyCode('code-kvasir')">Copy</button>
-      <pre><span class="cm"># Download Kvasir-SEG (~44MB) — Windows PowerShell</span>
-Invoke-WebRequest -Uri <span class="st">"https://datasets.simula.no/downloads/kvasir-seg.zip"</span> `
-                  -OutFile <span class="st">"Kvasir-SEG.zip"</span>
-Expand-Archive -Path <span class="st">"Kvasir-SEG.zip"</span> -DestinationPath <span class="st">"."</span>
-
-<span class="cm"># OR on Linux/macOS</span>
-wget https://datasets.simula.no/downloads/kvasir-seg.zip
-unzip kvasir-seg.zip
-
-<span class="cm"># Parse dataset → generates Kvasir-SEG/processed/dataset.csv</span>
-python main.py --dataset kvasir --data-path .\Kvasir-SEG --prepare-data
-
-<span class="cm"># Train all 3 models on Kvasir-SEG</span>
-python main.py --dataset kvasir --data-path .\Kvasir-SEG --train --epochs 20
-
-<span class="cm"># Evaluate</span>
-python main.py --dataset kvasir --data-path .\Kvasir-SEG --eval</pre>
+    <div class="code-block" id="code-cervical" style="display:none;">
+      <pre># Generate synthetic Pap smear dataset and evaluate Cervical domain
+python run_experiments.py --dataset cervical</pre>
     </div>
 
-    <div class="code-block" id="code-polypgen" style="display:none;">
-      <button class="copy-btn" onclick="copyCode('code-polypgen')">Copy</button>
-      <pre><span class="cm"># Download PolypGen — register at synapse.org first</span>
-pip install synapseclient
-synapse get syn26376615 --recursive
-
-<span class="cm"># Parse all 6 clinical centers → generates PolypGen/processed/dataset.csv</span>
-<span class="cm"># Center split: C1-C4=train, C5=val, C6=test</span>
-python main.py --dataset polypgen --data-path .\PolypGen --prepare-data
-
-<span class="cm"># Train on PolypGen (positive + negative samples)</span>
-python main.py --dataset polypgen --data-path .\PolypGen --train --epochs 20
-
-<span class="cm"># Evaluate on held-out Center C6</span>
-python main.py --dataset polypgen --data-path .\PolypGen --eval</pre>
+    <div class="code-block" id="code-alzheimer" style="display:none;">
+      <pre># Generate synthetic MRI dataset and evaluate Alzheimer domain
+python run_experiments.py --dataset alzheimer</pre>
     </div>
+  </section>
 
-    <div class="code-block" id="code-predict" style="display:none;">
-      <button class="copy-btn" onclick="copyCode('code-predict')">Copy</button>
-      <pre><span class="cm"># Run selective inference (skips seg/vlm if no polyp detected)</span>
-python main.py --predict path/to/frame.jpg --mode selective
+  <footer>
+    <p>© 2026 MDPI Future Internet Paper Implementation • PolypFlow Agentic Medical AI Pipeline</p>
+    <p style="margin-top:6px; font-size:0.78rem; color:var(--dim);">Hosted on http://127.0.0.1:8081</p>
+  </footer>
+</div>
 
-<span class="cm"># Run full pipeline (always executes all 4 stages)</span>
-python main.py --predict path/to/frame.jpg --mode full `
-               --question <span class="st">"Is there a polyp in this frame?"</span>
-
-<span class="cm"># ── Example output ─────────────────────────────────────────</span>
-<span class="cm"># ==================================================</span>
-<span class="cm">#   INFERENCE RESULT (SELECTIVE MODE)</span>
-<span class="cm"># ==================================================</span>
-<span class="cm"># Executed Stages:  ['f_cls', 'f_det', 'f_seg', 'f_vlm']</span>
-<span class="cm"># Skipped Stages:   []</span>
-<span class="cm"># Latency:          28 ms (98% GPU Load)</span>
-<span class="cm"># STRUCTURED TOKENS:</span>
-<span class="cm">#   [CLS:polyp|DET:0.91|SEG:0.87|REP:clinical]</span>
-<span class="cm"># --------------------------------------------------</span>
-<span class="cm"># Polyp lesion detected. Biopsy/resection recommended.</span></pre>
-    </div>
-  </div>
-</section>
-
-<hr />
-
-<!-- ─── Footer ────────────────────────────────────────────── -->
-<footer>
-  <div class="container">
-    <div class="footer-inner">
-      <div class="footer-logo">🔬 PolypFlow</div>
-      <div class="footer-links">
-        <a href="#method">Method</a>
-        <a href="#results">Results</a>
-        <a href="#datasets">Datasets</a>
-        <a href="DATASET_SETUP.md">Setup Guide</a>
-        <a href="README.md">README</a>
-      </div>
-      <div class="footer-copy">
-        Built with fast.ai · Kvasir-SEG (CC-BY 4.0) · PolypGen (Synapse) · MIT License
-      </div>
-    </div>
-  </div>
-</footer>
-
-<!-- ─── Scripts ───────────────────────────────────────────── -->
 <script>
-// ── Tab switching ───────────────────────────────────────────
 function switchTab(id, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   btn.classList.add('active');
-  if (id === 'charts') setTimeout(initCharts, 50);
 }
 
-// ── Code tab switching ──────────────────────────────────────
-function switchCode(id, btn) {
+function switchCode(id) {
   document.querySelectorAll('[id^="code-"]').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('code-' + id).style.display = 'block';
-  btn.classList.add('active');
+  document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
 }
-
-// ── Copy code ───────────────────────────────────────────────
-function copyCode(blockId) {
-  const pre = document.querySelector('#' + blockId + ' pre');
-  navigator.clipboard.writeText(pre.innerText).then(() => {
-    const btn = document.querySelector('#' + blockId + ' .copy-btn');
-    btn.textContent = '✓ Copied';
-    setTimeout(() => btn.textContent = 'Copy', 2000);
-  });
-}
-
-// ── Chart colors ────────────────────────────────────────────
-const C_OURS   = 'rgba(59,130,246,0.85)';
-const C_SOTA   = 'rgba(99,102,241,0.7)';
-const C_OTHERS = 'rgba(100,116,139,0.5)';
-const LABELS_SEG = ['U-Net', 'ResUNet++', 'PraNet', 'SANet', 'CaraNet', 'Polyp-PVT', 'SSFormer-L', 'Ours'];
-const COLORS_SEG = [C_OTHERS,C_OTHERS,C_OTHERS,C_OTHERS,C_OTHERS,C_SOTA,C_SOTA,C_OURS];
-const BORDER_SEG = [C_OTHERS,C_OTHERS,C_OTHERS,C_OTHERS,C_OTHERS,C_SOTA,C_SOTA,'rgba(59,130,246,1)'];
-
-let chartsInited = false;
-
-function initCharts() {
-  if (chartsInited) return;
-  chartsInited = true;
-
-  const gridColor = 'rgba(255,255,255,0.06)';
-  const tickColor = '#64748b';
-  const fontFamily = "'Inter', sans-serif";
-
-  const baseOpts = {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: fontFamily, size: 11 } } },
-      y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: fontFamily, size: 11 } } }
-    }
-  };
-
-  // Chart 1: Kvasir mDice
-  new Chart(document.getElementById('chart-kvasir-dice'), {
-    type: 'bar',
-    data: {
-      labels: LABELS_SEG,
-      datasets: [{
-        label: 'mDice',
-        data: [0.818, 0.813, 0.898, 0.904, 0.918, 0.940, 0.945, 0.948],
-        backgroundColor: COLORS_SEG,
-        borderColor: BORDER_SEG,
-        borderWidth: 1.5, borderRadius: 6,
-      }]
-    },
-    options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, min: 0.75, max: 1.0 } } }
-  });
-
-  // Chart 2: Kvasir mIoU
-  new Chart(document.getElementById('chart-kvasir-iou'), {
-    type: 'bar',
-    data: {
-      labels: LABELS_SEG,
-      datasets: [{
-        label: 'mIoU',
-        data: [0.746, 0.793, 0.840, 0.847, 0.865, 0.890, 0.900, 0.903],
-        backgroundColor: COLORS_SEG,
-        borderColor: BORDER_SEG,
-        borderWidth: 1.5, borderRadius: 6,
-      }]
-    },
-    options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, min: 0.70, max: 0.95 } } }
-  });
-
-  // Chart 3: PolypGen mDice
-  const LABELS_PG = ['U-Net', 'PraNet', 'SANet', 'CaraNet', 'Polyp-PVT', 'SSFormer-L', 'Ours'];
-  const COLORS_PG = [C_OTHERS,C_OTHERS,C_OTHERS,C_OTHERS,C_SOTA,C_SOTA,C_OURS];
-  const BORDER_PG = [C_OTHERS,C_OTHERS,C_OTHERS,C_OTHERS,C_SOTA,C_SOTA,'rgba(59,130,246,1)'];
-  new Chart(document.getElementById('chart-polypgen-dice'), {
-    type: 'bar',
-    data: {
-      labels: LABELS_PG,
-      datasets: [{
-        label: 'mDice (PolypGen)',
-        data: [0.742, 0.781, 0.798, 0.814, 0.831, 0.846, 0.858],
-        backgroundColor: COLORS_PG,
-        borderColor: BORDER_PG,
-        borderWidth: 1.5, borderRadius: 6,
-      }]
-    },
-    options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, min: 0.68, max: 0.90 } } }
-  });
-
-  // Chart 4: Radar
-  new Chart(document.getElementById('chart-radar'), {
-    type: 'radar',
-    data: {
-      labels: ['mDice', 'mIoU', 'Recall', 'Precision', 'Speed', 'Efficiency'],
-      datasets: [
-        {
-          label: 'PolypFlow (Ours)',
-          data: [0.948, 0.903, 0.971, 0.948, 0.82, 0.95],
-          backgroundColor: 'rgba(59,130,246,0.15)',
-          borderColor: 'rgba(59,130,246,0.9)',
-          borderWidth: 2, pointBackgroundColor: 'rgba(59,130,246,1)', pointRadius: 4
-        },
-        {
-          label: 'SSFormer-L',
-          data: [0.945, 0.900, 0.968, 0.952, 0.40, 0.55],
-          backgroundColor: 'rgba(99,102,241,0.1)',
-          borderColor: 'rgba(99,102,241,0.7)',
-          borderWidth: 1.5, pointBackgroundColor: 'rgba(99,102,241,0.8)', pointRadius: 3
-        },
-        {
-          label: 'PraNet',
-          data: [0.898, 0.840, 0.944, 0.915, 0.65, 0.70],
-          backgroundColor: 'rgba(100,116,139,0.08)',
-          borderColor: 'rgba(100,116,139,0.5)',
-          borderWidth: 1.5, pointBackgroundColor: 'rgba(100,116,139,0.6)', pointRadius: 3
-        }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'bottom',
-          labels: { color: tickColor, font: { family: fontFamily, size: 11 }, padding: 16 }
-        }
-      },
-      scales: {
-        r: {
-          min: 0.4, max: 1.0, ticks: { stepSize: 0.15, color: tickColor, backdropColor: 'transparent', font: { size: 10 } },
-          grid: { color: gridColor },
-          angleLines: { color: gridColor },
-          pointLabels: { color: tickColor, font: { family: fontFamily, size: 12 } }
-        }
-      }
-    }
-  });
-
-  // Chart 5: Bubble (Latency vs Accuracy)
-  new Chart(document.getElementById('chart-bubble'), {
-    type: 'bubble',
-    data: {
-      datasets: [
-        { label: 'PolypFlow Selective',  data: [{x:11,  y:0.948, r:10}], backgroundColor: 'rgba(16,185,129,0.8)',  borderColor: 'rgba(16,185,129,1)',  borderWidth:2 },
-        { label: 'PolypFlow Full',       data: [{x:35,  y:0.948, r:10}], backgroundColor: 'rgba(59,130,246,0.8)',  borderColor: 'rgba(59,130,246,1)',  borderWidth:2 },
-        { label: 'SSFormer-L',           data: [{x:124, y:0.945, r:16}], backgroundColor: 'rgba(99,102,241,0.55)', borderColor: 'rgba(99,102,241,0.8)', borderWidth:1.5 },
-        { label: 'Polyp-PVT',            data: [{x:98,  y:0.940, r:14}], backgroundColor: 'rgba(99,102,241,0.4)',  borderColor: 'rgba(99,102,241,0.6)', borderWidth:1.5 },
-        { label: 'CaraNet',              data: [{x:72,  y:0.918, r:12}], backgroundColor: 'rgba(100,116,139,0.4)', borderColor: 'rgba(100,116,139,0.6)',borderWidth:1.5 },
-        { label: 'PraNet',               data: [{x:56,  y:0.898, r:11}], backgroundColor: 'rgba(100,116,139,0.35)',borderColor: 'rgba(100,116,139,0.5)',borderWidth:1.5 },
-        { label: 'YOLOv8-s',            data: [{x:8,   y:0.878, r:8}],  backgroundColor: 'rgba(245,158,11,0.55)', borderColor: 'rgba(245,158,11,0.8)', borderWidth:1.5 },
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: true, position: 'right', labels: { color: '#64748b', font: { family: fontFamily, size: 11 }, padding: 12 } },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.dataset.label}: latency=${ctx.raw.x}ms, Dice=${ctx.raw.y}`
-          }
-        }
-      },
-      scales: {
-        x: { title: { display: true, text: 'Latency (ms) →  lower is better', color: '#64748b', font: { size: 12 } }, grid: { color: gridColor }, ticks: { color: tickColor, font: { family: fontFamily } }, min: 0, max: 150 },
-        y: { title: { display: true, text: 'mDice ↑  higher is better', color: '#64748b', font: { size: 12 } }, grid: { color: gridColor }, ticks: { color: tickColor, font: { family: fontFamily } }, min: 0.85, max: 0.97 }
-      }
-    }
-  });
-}
-
-// ── Scroll reveal ────────────────────────────────────────────
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-}, { threshold: 0.12 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
