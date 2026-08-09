@@ -1,0 +1,34 @@
+{
+  "dataset": "cervical",
+  "segmentation": {
+    "mDice": 0.8959,
+    "mIoU": 0.8181,
+    "Recall": 0.8931,
+    "Precision": 0.9031
+  },
+  "classification": {
+    "accuracy": 0.0,
+    "auc_roc": 0.0,
+    "f1": 0.0,
+    "sensitivity": 0.0,
+    "specificity": 0.0,
+    "precision": 0.0
+  },
+  "detection": {
+    "mAP_50": 0.0,
+    "mAP_75": 0.0,
+    "Recall": 0.0,
+    "FPS": 6.0
+  },
+  "efficiency": {
+    "full_latency_ms": 163.16,
+    "selective_latency_ms": 169.61,
+    "full_gpu_pct": 100.0,
+    "selective_gpu_pct": 100.0,
+    "latency_reduction_pct": -4.0
+  },
+  "vlm_reasoning": {
+    "ROUGE_L": 0.43,
+    "BLEU": 0.21
+  }
+}
