@@ -446,7 +446,7 @@ If you use this code in your research, please cite:
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+MIT License
 
 Dataset licenses:
 - **Kvasir-SEG**: [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/)
